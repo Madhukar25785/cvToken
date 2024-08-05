@@ -31,11 +31,13 @@ const Login = () => {
             })
 
             const data = await response.json();
+            // console.log("data", data);
 
             if (data.status === true) {
                 localStorage.setItem("token", data.access_token);
+                toast.success(data.message);
 
-                navigate('/dashboard');
+                navigate('/');
             } else {
                 toast.error(data.message);
             }
@@ -50,13 +52,13 @@ const Login = () => {
         <section className="vh-100">
             <div className="container-fluid h-custom">
                 <div className="row d-flex justify-content-center align-items-center h-100">
-                    <div className="col-md-8 col-lg-6 col-xl-4 offset-xl-1">
-                        <form>
-                            <div className="card-body p-5">
+                    <div className="in col-md-8 col-lg-6 col-xl-4 py-5">
+                        <form className='login-form'>
+                            <div className="card-body py-3">
                                 <h2 className=" text-center mb-1">Log In</h2>
                             </div>
 
-                            <div className="form-outline mb-4">
+                            <div className="form-outline mb-2">
                                 <label className="form-label" htmlFor="user_id">User ID</label>
                                 <input
                                     type="email"
@@ -69,7 +71,7 @@ const Login = () => {
                                 />
                             </div>
 
-                            <div className="form-outline mb-3">
+                            <div className="form-outline mb-2">
                                 <label className="form-label" htmlFor="password">Password</label>
                                 <input
                                     type="password"
@@ -81,15 +83,15 @@ const Login = () => {
                                 />
                             </div>
                             <div>
-                                <p className="small fw-bold mt-2 pt-1 mb-0">
-                                    <NavLink to="/forget" className="link-danger">Forget Password?</NavLink>
+                                <p className="forget fw-bold mt-2 pt-1 mb-0">
+                                    <NavLink to="/forget" className="link-danger">Forgot Password?</NavLink>
                                 </p>
                             </div>
 
-                            <div className="text-center text-start-center mt-4 pt-2">
+                            <div className="text-center text-start-center mt-1">
                                 <button
                                     type="button"
-                                    class="btn btn-primary btn-lg"
+                                    className="btn btn-primary btn-lg"
                                     style={{ paddingLeft: '2.5rem', paddingRight: '2.5rem' }}
                                     onClick={handleLogin}>
                                     Log In

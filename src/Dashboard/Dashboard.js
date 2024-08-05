@@ -2,9 +2,10 @@ import React, { useEffect, useState } from 'react'
 import _fetch from '../config/api'
 import { base_url } from '../config/config'
 import Nav from '../Dashboard/Navbar';
+import { GrFormNext, GrFormPrevious } from 'react-icons/gr';
 import '../assets/Css/css.css'
 
-function Dashboard({ Toggle }) {
+const Dashboard = () => {
 
     const [contractAddress, setContractAddress] = useState(null);
     const [rank, setRank] = useState([]);
@@ -15,7 +16,10 @@ function Dashboard({ Toggle }) {
     const [account, setAccount] = useState([]);
     const [type, setType] = useState();
     const [amount, setAmount] = useState();
-
+    const [currentPage, setCurrentPage] = useState(1);
+    const [limit] = useState(10); // Limit is fixed at 10 per page
+    const [total, setTotal] = useState(0);
+    const [toggle, setToggle] = useState(true);
 
     // console.log('rankrank', rank);
 
@@ -23,6 +27,7 @@ function Dashboard({ Toggle }) {
         try {
             const request = await _fetch(`${base_url}/api/dashboard`, 'GET', {}, {});
             // console.log('request------>', request);
+            // console.log("request", request);
             setContractAddress(request?.contract_address);
             setReferralLink(request?.referral_link)
             setRank(request?.rank[0])
@@ -81,11 +86,29 @@ function Dashboard({ Toggle }) {
         setAmount(temp);
     };
 
+    useEffect(() => {
+        const skip = (currentPage - 1) * limit;
+        fetchData(skip);
+    }, [currentPage, limit]);
+
+
+    const handlePreviousPage = (e) => {
+        e.preventDefault();
+        if (currentPage > 1) {
+            setCurrentPage(currentPage - 1);
+        }
+    };
+
+    const handleNextPage = (e) => {
+        e.preventDefault();
+        const totalPages = Math.ceil(total / limit);
+        if (currentPage < totalPages) {
+            setCurrentPage(currentPage + 1);
+        }
+    };
 
     return (
-        <div className='px-2'>
-            <Nav Toggle={Toggle} />
-
+        <div className='py-5'>
             <div className='row'>
                 <form>
                     <div className='price-box col-lg-4 col-md-6 col-sm-6'>
@@ -160,19 +183,19 @@ function Dashboard({ Toggle }) {
                                     <div className="reward-box">
                                         <div className="img-part">
                                             <img src="https://s2.coinmarketcap.com/static/img/coins/64x64/825.png" alt="" />
-                                            <p id="labelTop tex-light">USDT</p>
+                                            <p id="labelTop">USDT</p>
                                             <span>/</span>
                                             <input type="text" id='amount' className="form-control" value={type}
                                                 onChange={(e) => setType(e.target.value)} />
                                         </div>
                                     </div>
-                                    <div>
+                                    <div className='d-flex justify-content-center'>
                                         <button type='button' onClick={handleSwap}>converter</button>
                                     </div>
                                     <div>
                                         <div className="reward-box">
-                                            <div className="img-part"   >
-                                                <img className='cvt' src="https://decentralized-plan.jstechservices.us/stake/Assets/img/avatar.png" alt="" />
+                                            <div className="img-part">
+                                                <img src="https://decentralized-plan.jstechservices.us/stake/Assets/img/avatar.png" alt="" />
                                                 <p id="labelTop">CVT</p>
                                                 <span>/</span>
                                                 <input type="text" id='amount' className="form-control" value={amount}
@@ -181,8 +204,9 @@ function Dashboard({ Toggle }) {
                                             </div>
                                         </div>
                                     </div>
-                                    <div>
-                                        <button type='submit' class='btn btn-primary' onClick={handleSwapButton}>Swap</button>
+                                    <div className='d-flex justify-content-center gap-2'>
+                                        <button type='submit' class='btn btn-info' onClick={handleSwapButton}>Swap</button>
+                                        <button type='submit' class='btn btn-info'>Swap History</button>
                                     </div>
                                 </form>
 
@@ -213,10 +237,10 @@ function Dashboard({ Toggle }) {
 
             <div className='col-md-12 mt-5'>
                 <div className='table-responsive'>
-                    <h4 className='mt-3 px-3'>Latest Withdraw</h4>
+                    <h4 className='mt-3 px-3'>Latest Withdrawals</h4>
                     <table className="mt-table mt-2">
                         <thead>
-                            <tr>
+                            <tr className='border-b2'>
                                 <th scope="col">S.No</th>
                                 <th scope="col">Asset</th>
                                 <th scope="col">Transaction Hash</th>
@@ -242,6 +266,41 @@ function Dashboard({ Toggle }) {
                             })}
                         </tbody>
                     </table>
+                    <div className='market-table'>
+                        {transaction.length > 0 ? (
+                            <>
+                                <div className='total-page'>
+                                    <p>Page {currentPage} of {Math.ceil(total / limit)}</p>
+                                </div>
+                                <div className='pagination-div'>
+                                    <nav aria-label="Page navigation example">
+                                        <ul className="pagination">
+                                            <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
+                                                <a className="page-link page-link1" onClick={handlePreviousPage}>
+                                                    <GrFormPrevious />
+                                                </a>
+                                            </li>
+
+                                            <li className={`page-item`}>
+                                                <a className="page-link page-link1" >
+                                                    {currentPage}
+                                                </a>
+                                            </li>
+
+                                            <li className={`page-item ${currentPage === Math.ceil(total / limit) ? 'disabled' : ''}`}>
+                                                <a className="page-link page-link1" onClick={handleNextPage}>
+                                                    <GrFormNext />
+                                                </a>
+                                            </li>
+                                        </ul>
+                                    </nav>
+                                </div>
+                            </>
+                        ) : (
+                            null
+                        )
+                        }
+                    </div>
                 </div>
             </div>
         </div>
